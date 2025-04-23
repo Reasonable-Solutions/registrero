@@ -1,0 +1,6 @@
+localhost:4433 {
+    tls internal
+    root * .
+    file_server
+}
+

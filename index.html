@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebAuthn Registration Example</title>
+</head>
+<body>
+    <h1>Register with WebAuthn</h1>
+    <button id="registerBtn">Register</button>
+    <pre id="output"></pre>
+
+    <script>
+        document.getElementById('registerBtn').addEventListener('click', async () => {
+            const publicKey = {
+                challenge: new Uint8Array(32),
+                rp: {
+                    name: "Example Site",
+                    id: window.location.hostname
+                },
+                user: {
+                    id: new Uint8Array(16),
+                    name: "user@example.com",
+                    displayName: "User Example"
+                },
+                pubKeyCredParams: [{
+                    type: "public-key",
+                    alg: -7 // ES256
+                }]
+            };
+
+            try {
+                const credential = await navigator.credentials.create({ publicKey });
+                const clientDataJSON = credential.response.clientDataJSON;
+                const attestationObject = credential.response.attestationObject;
+
+                document.getElementById('output').textContent = JSON.stringify({
+                    id: credential.id,
+                    type: credential.type,
+                    rawId: new Uint8Array(credential.rawId),
+                    response: {
+                        clientDataJSON: new Uint8Array(clientDataJSON),
+                        attestationObject: new Uint8Array(attestationObject)
+                    }
+                }, null, 2);
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('output').textContent = 'Error: ' + err;
+            }
+        });
+    </script>
+</body>
+</html>
+
