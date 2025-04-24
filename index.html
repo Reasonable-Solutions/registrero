@@ -7,15 +7,17 @@
 </head>
 <body>
     <h1>Register with WebAuthn</h1>
+    <input type="text" id="displayname" />
     <button id="registerBtn">Register</button>
     <pre id="output"></pre>
 
     <script>
-        document.getElementById('registerBtn').addEventListener('click', async () => {
+     document.getElementById('registerBtn').addEventListener('click', async () => {
+	    const displayName = document.getElementById('displayname').value
             const publicKey = {
                 challenge: new Uint8Array(32),
                 rp: {
-                    name: "Example Site",
+                    name: "fyfaen.as",
                     id: window.location.hostname
                 },
                 user: {
@@ -25,7 +27,7 @@
                 },
                 pubKeyCredParams: [{
                     type: "public-key",
-                    alg: -7 // ES256
+                    alg: -8
                 }]
             };
 
@@ -33,16 +35,15 @@
                 const credential = await navigator.credentials.create({ publicKey });
                 const clientDataJSON = credential.response.clientDataJSON;
                 const attestationObject = credential.response.attestationObject;
-
-                document.getElementById('output').textContent = JSON.stringify({
-                    id: credential.id,
-                    type: credential.type,
-                    rawId: new Uint8Array(credential.rawId),
-                    response: {
-                        clientDataJSON: new Uint8Array(clientDataJSON),
-                        attestationObject: new Uint8Array(attestationObject)
-                    }
-                }, null, 2);
+		document.getElementById('output').textContent = JSON.stringify({
+		    id: credential.id,
+		    type: credential.type,
+		    rawId: btoa(String.fromCharCode(...new Uint8Array(credential.rawId))),
+		    response: {
+			clientDataJSON: btoa(String.fromCharCode(...new Uint8Array(clientDataJSON))),
+			attestationObject: btoa(String.fromCharCode(...new Uint8Array(attestationObject)))
+		    }
+		     }, null, 2);
 
             } catch (err) {
                 console.error(err);
@@ -52,4 +53,3 @@
     </script>
 </body>
 </html>
-
